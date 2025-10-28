@@ -1,0 +1,139 @@
+# ===============================================
+# Analyzing Data with Pandas & Visualizing with Matplotlib
+# Dataset: Iris (from sklearn)
+# Author: Your Name
+# Date: October 28, 2025
+# ===============================================
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_iris
+import numpy as np
+
+# Set style for better-looking plots
+sns.set(style="whitegrid", palette="deep")
+plt.rcParams['figure.figsize'] = (10, 6)
+
+print("Starting Iris Dataset Analysis...\n")
+
+# Task 1: Load and Explore the Dataset
+try:
+    # Load Iris dataset
+    iris_data = load_iris()
+    df = pd.DataFrame(data=iris_data.data, columns=iris_data.feature_names)
+    df['species'] = pd.Categorical.from_codes(iris_data.target, iris_data.target_names)
+    
+    print("Dataset loaded successfully from sklearn.")
+    
+except Exception as e:
+    print(f"Error loading dataset: {e}")
+    exit()
+
+# 1. Display first few rows
+print("\nFirst 5 rows of the dataset:")
+print(df.head())
+
+# 2. Explore structure
+print("\nDataset Info:")
+print(df.info())
+
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# 3. Clean dataset (Iris is clean, but we'll demonstrate)
+# No missing values in Iris, but let's simulate handling
+if df.isnull().sum().sum() > 0:
+    print("\nMissing values found. Filling with column mean...")
+    df.fillna(df.mean(numeric_only=True), inplace=True)
+else:
+    print("\nNo missing values found. Dataset is clean.")
+
+# Task 2: Basic Data Analysis
+
+# 1. Basic statistics
+print("\nDescriptive Statistics:")
+print(df.describe())
+
+# 2. Group by species and compute mean
+print("\nAverage measurements by species:")
+species_means = df.groupby('species').mean()
+print(species_means)
+
+# 3. Findings
+print("\nKey Observations:")
+print("   • Virginica has the largest average petal length and width.")
+print("   • Setosa has the smallest petal dimensions but similar sepal length to Versicolor.")
+print("   • Petal length and width show strong differentiation between species.")
+
+# Task 3: Data Visualization
+
+# Ensure 'species' is string for plotting
+df['species'] = df['species'].astype(str)
+
+# 1. Line Chart: Trend of sepal length across samples (simulated time/index)
+plt.figure()
+sample_indices = np.arange(len(df))
+for species in df['species'].unique():
+    species_data = df[df['species'] == species]
+    plt.plot(sample_indices[:len(species_data)], 
+             species_data['sepal length (cm)'], 
+             label=species, marker='o', linewidth=2)
+plt.title('Trend of Sepal Length Across Samples by Species', fontsize=14, fontweight='bold')
+plt.xlabel('Sample Index')
+plt.ylabel('Sepal Length (cm)')
+plt.legend(title='Species')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 2. Bar Chart: Average petal length per species
+plt.figure()
+avg_petal_length = df.groupby('species')['petal length (cm)'].mean()
+avg_petal_length.plot(kind='bar', color=['#ff9999', '#66b3ff', '#99ff99'])
+plt.title('Average Petal Length by Species', fontsize=14, fontweight='bold')
+plt.xlabel('Species')
+plt.ylabel('Average Petal Length (cm)')
+plt.xticks(rotation=0)
+for i, v in enumerate(avg_petal_length):
+    plt.text(i, v + 0.05, f'{v:.2f}', ha='center', fontweight='bold')
+plt.tight_layout()
+plt.show()
+
+# 3. Histogram: Distribution of sepal width
+plt.figure()
+plt.hist(df['sepal width (cm)'], bins=20, color='skyblue', edgecolor='black', alpha=0.7)
+plt.title('Distribution of Sepal Width', fontsize=14, fontweight='bold')
+plt.xlabel('Sepal Width (cm)')
+plt.ylabel('Frequency')
+plt.axvline(df['sepal width (cm)'].mean(), color='red', linestyle='--', linewidth=2, label=f"Mean: {df['sepal width (cm)'].mean():.2f}")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# 4. Scatter Plot: Sepal length vs. petal length
+plt.figure()
+colors = {'setosa': '#ff6666', 'versicolor': '#6699ff', 'virginica': '#66ff99'}
+for species in df['species'].unique():
+    subset = df[df['species'] == species]
+    plt.scatter(subset['sepal length (cm)'], subset['petal length (cm)'],
+                c=colors[species], label=species, s=80, alpha=0.8, edgecolors='black', linewidth=0.5)
+plt.title('Sepal Length vs. Petal Length by Species', fontsize=14, fontweight='bold')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Petal Length (cm)')
+plt.legend(title='Species')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Final Summary
+print("\n" + "="*60)
+print("ANALYSIS COMPLETE")
+print("="*60)
+print("Visualizations Created:")
+print("   1. Line Chart: Sepal length trend by species")
+print("   2. Bar Chart: Average petal length per species")
+print("   3. Histogram: Distribution of sepal width")
+print("   4. Scatter Plot: Sepal vs. petal length (strong correlation visible)")
+print("\nInsight: Petal dimensions are excellent for species classification!")
+print("="*60)
